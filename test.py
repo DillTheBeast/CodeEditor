@@ -24,6 +24,10 @@ class CodeEditor:
         self.file_menu.add_command(label="Save As", command=self.save_as_file)
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Exit", command=root.destroy)
+        
+        # Bind Command+S (or Control+S) to save_file function
+        root.bind('<Command-s>', self.save_file)
+        root.bind('<Control-s>', self.save_file)
 
     def new_file(self):
         self.text_widget.delete(1.0, tk.END)
@@ -36,10 +40,16 @@ class CodeEditor:
                 self.text_widget.delete(1.0, tk.END)
                 self.text_widget.insert(tk.END, content)
 
-    def save_file(self):
-        # Save the content to the current file if available
-        # Otherwise, prompt for a file name to save as
-        pass
+    def save_file(self, event=None):
+        # Check if there is a file_path associated with the current content
+        if hasattr(self, 'file_path') and self.file_path:
+            with open(self.file_path, 'w') as file:
+                content = self.text_widget.get(1.0, tk.END)
+                file.write(content)
+        else:
+            # If no file_path is associated, prompt for a file name to save as
+            self.save_as_file()
+
 
     def save_as_file(self):
         file_path = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text files", "*.txt"), ("All files", "*.*")])
@@ -47,6 +57,8 @@ class CodeEditor:
             with open(file_path, 'w') as file:
                 content = self.text_widget.get(1.0, tk.END)
                 file.write(content)
+            self.file_path = file_path
+
 
 if __name__ == "__main__":
     root = tk.Tk()
