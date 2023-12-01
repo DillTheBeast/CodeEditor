@@ -8,7 +8,7 @@ class CodeEditor:
         self.root.title("Simple Code Editor")
 
         # Create a scrolled text widget
-        self.text_widget = scrolledtext.ScrolledText(root, wrap=tk.WORD, width=80, height=30)
+        self.text_widget = scrolledtext.ScrolledText(root, wrap=tk.WORD, width=500, height=500)
         self.text_widget.pack(expand=True, fill='both')
 
         # Menu bar
