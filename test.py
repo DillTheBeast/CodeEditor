@@ -1,3 +1,4 @@
+import os
 import tkinter as tk
 from tkinter import scrolledtext
 from tkinter import filedialog
@@ -8,20 +9,32 @@ class CodeEditor:
         self.root.title("Simple Code Editor")
 
         # Create a Text widget with a vertical scrollbar
-        self.text_widget = tk.Text(root, wrap=tk.WORD, width=300, height=300)
-        self.text_widget.grid(row=0, column=0, sticky="nsew")
+        self.text_widget = tk.Text(root, wrap=tk.WORD, width=100, height=30, borderwidth=0, highlightthickness=0)
+        self.text_widget.grid(row=0, column=1, sticky="nsew")
 
-        # Vertical scrollbar
+        # Vertical scrollbar for the Text widget
         scrollbar = tk.Scrollbar(root, command=self.text_widget.yview)
-        scrollbar.grid(row=0, column=1, sticky="ns")
+        scrollbar.grid(row=0, column=2, sticky="ns")
         self.text_widget.config(yscrollcommand=scrollbar.set)
+
+        # Listbox to display files and subdirectories
+        self.file_listbox = tk.Listbox(root, selectmode=tk.SINGLE, width=30, height=30, borderwidth=0, highlightthickness=0)
+        self.file_listbox.grid(row=0, column=0, sticky="nsew")
+
+        # Vertical scrollbar for the Listbox
+        listbox_scrollbar = tk.Scrollbar(root, command=self.file_listbox.yview)
+        listbox_scrollbar.grid(row=0, column=1, sticky="ns")
+        self.file_listbox.config(yscrollcommand=listbox_scrollbar.set)
 
         # Configure row and column weights for expansion
         root.grid_rowconfigure(0, weight=1)
-        root.grid_columnconfigure(0, weight=1)
+        root.grid_columnconfigure(0, weight=2)
+        root.grid_columnconfigure(1, weight=3)
 
         # Bind click event to text widget
         self.text_widget.bind("<Button-1>", self.text_widget_click)
+        # Bind click event to scrollbar (to focus on Text widget when scrollbar is clicked)
+        scrollbar.bind("<Button-1>", self.text_widget_click)
 
         # Menu bar
         self.menu_bar = tk.Menu(root)
@@ -46,6 +59,9 @@ class CodeEditor:
         root.bind('<Control-o>', self.open_file)
         root.bind('<Command-e>', self.custom_destroy)  # Rename destroy method
 
+        # Open a folder prompt when the application launches
+        self.open_file()
+
     def text_widget_click(self, event):
         self.text_widget.focus_set()
 
@@ -53,12 +69,19 @@ class CodeEditor:
         self.text_widget.delete(1.0, tk.END)
 
     def open_file(self):
-        file_path = filedialog.askopenfilename(filetypes=[("Text files", "*.txt"), ("All files", "*.*")])
-        if file_path:
-            with open(file_path, 'r') as file:
-                content = file.read()
-                self.text_widget.delete(1.0, tk.END)
-                self.text_widget.insert(tk.END, content)
+        folder_path = filedialog.askdirectory()
+        if folder_path:
+            # Do something with the selected folder path
+            print(f"Selected folder: {folder_path}")
+            # You can use the folder path as needed in your application
+            # For example, you might list the files in the folder or perform other operations.
+
+            # Clear existing items in the listbox
+            self.file_listbox.delete(0, tk.END)
+
+            # List files and subdirectories in the selected folder
+            for item in os.listdir(folder_path):
+                self.file_listbox.insert(tk.END, item)
 
     def save_file(self, event=None):
         # Check if there is a file_path associated with the current content
