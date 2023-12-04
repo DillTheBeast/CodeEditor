@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import scrolledtext
 from tkinter import filedialog
 import os
+import keyboard
 os.environ['TK_SILENCE_DEPRECATION'] = '1'
 
 
@@ -22,12 +23,12 @@ class CodeEditor:
         self.text_widget.grid(row=0, column=1, sticky="nsew")
         self.text_widget.bind('<Configure>', self.update_line_numbers)
         self.text_widget.config(font=('Courier', 12))  # Adjust font size and family as needed
-        self.text_widget.bind('<Return>', self.handle_key_press)
 
         # Vertical scrollbar for the Text widget
         scrollbar = tk.Scrollbar(root, command=self.text_widget.yview)
         scrollbar.grid(row=0, column=2, sticky="ns")
         self.text_widget.config(yscrollcommand=scrollbar.set)
+        root.bind('<Return>', self.handle_key_press)  # Bind the Return key to the handle_key_press method
 
         # Listbox to display files and subdirectories
         self.file_listbox = tk.Listbox(root, selectmode=tk.SINGLE, width=30, height=30, borderwidth=1, highlightthickness=1)
@@ -77,10 +78,7 @@ class CodeEditor:
         self.open_file()
 
     def handle_key_press(self, event):
-        if event.key == 'Return':
-            print("Enter key pressed!")
-            # Add your desired functionality here
-
+        print("Test")
 
     def text_widget_click(self, event):
         self.text_widget.focus_set()
@@ -131,7 +129,7 @@ class CodeEditor:
             self.save_as_file()
 
     def save_as_file(self):
-        file_path = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text files", "*.txt"), ("All files", "*.*")])
+        file_path = filedialog.asksaveasfilename(defaultextension=".*", filetypes=[("Text files", "*.txt"), ("All files", "*.*")])
         if file_path:
             # Check if the user entered a file extension
             if not file_path.endswith((".txt", ".md", ".py")):
