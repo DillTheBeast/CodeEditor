@@ -22,8 +22,7 @@ class CodeEditor:
         self.text_widget.grid(row=0, column=1, sticky="nsew")
         self.text_widget.bind('<Configure>', self.update_line_numbers)
         self.text_widget.config(font=('Courier', 12))  # Adjust font size and family as needed
-        #self.text_widget.bind('<Configure>', self.update_line_numbers)
-        self.text_widget.bind('<KeyPress>', self.handle_key_press)
+        self.text_widget.bind('<Return>', self.handle_key_press)
 
         # Vertical scrollbar for the Text widget
         scrollbar = tk.Scrollbar(root, command=self.text_widget.yview)
@@ -78,9 +77,10 @@ class CodeEditor:
         self.open_file()
 
     def handle_key_press(self, event):
-        if event.keysym == 'Return':
+        if event.key == 'Return':
             print("Enter key pressed!")
             # Add your desired functionality here
+
 
     def text_widget_click(self, event):
         self.text_widget.focus_set()
