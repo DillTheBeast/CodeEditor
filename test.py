@@ -8,9 +8,16 @@ class CodeEditor:
         self.root = root
         self.root.title("Simple Code Editor")
 
+        # Create a Text widget for line numbers
+        self.line_number_widget = tk.Text(root, width=4, height=30, borderwidth=0, highlightthickness=0, wrap=tk.NONE)
+        self.line_number_widget.grid(row=0, column=0, sticky="nsew")
+        self.line_number_widget.config(state=tk.DISABLED)
+
         # Create a Text widget with a vertical scrollbar
-        self.text_widget = tk.Text(root, wrap=tk.WORD, width=100, height=30, borderwidth=0, highlightthickness=0)
+        self.text_widget = scrolledtext.ScrolledText(root, wrap=tk.WORD, width=100, height=30, borderwidth=1, highlightthickness=1)
         self.text_widget.grid(row=0, column=1, sticky="nsew")
+        self.text_widget.bind('<Configure>', self.update_line_numbers)
+        self.text_widget.config(font=('Courier', 12))  # Adjust font size and family as needed
 
         # Vertical scrollbar for the Text widget
         scrollbar = tk.Scrollbar(root, command=self.text_widget.yview)
@@ -18,18 +25,19 @@ class CodeEditor:
         self.text_widget.config(yscrollcommand=scrollbar.set)
 
         # Listbox to display files and subdirectories
-        self.file_listbox = tk.Listbox(root, selectmode=tk.SINGLE, width=30, height=30, borderwidth=0, highlightthickness=0)
-        self.file_listbox.grid(row=0, column=0, sticky="nsew")
+        self.file_listbox = tk.Listbox(root, selectmode=tk.SINGLE, width=30, height=30, borderwidth=1, highlightthickness=1)
+        self.file_listbox.grid(row=0, column=3, sticky="nsew")
 
         # Vertical scrollbar for the Listbox
         listbox_scrollbar = tk.Scrollbar(root, command=self.file_listbox.yview)
-        listbox_scrollbar.grid(row=0, column=1, sticky="ns")
+        listbox_scrollbar.grid(row=0, column=4, sticky="ns")
         self.file_listbox.config(yscrollcommand=listbox_scrollbar.set)
 
         # Configure row and column weights for expansion
         root.grid_rowconfigure(0, weight=1)
-        root.grid_columnconfigure(0, weight=2)
-        root.grid_columnconfigure(1, weight=3)
+        root.grid_columnconfigure(0, weight=1)
+        root.grid_columnconfigure(1, weight=2)
+        root.grid_columnconfigure(3, weight=1)
 
         # Bind click event to text widget
         self.text_widget.bind("<Button-1>", self.text_widget_click)
@@ -49,6 +57,7 @@ class CodeEditor:
         self.file_menu.add_command(label="Save As", command=self.save_as_file)
         self.file_menu.add_separator()
         self.file_menu.add_command(label="Exit", command=root.destroy)
+        self.file_listbox.bind("<Double-Button-1>", self.open_selected_file)
 
         # Adding Commands to work
         root.bind('<Command-s>', self.save_file)
@@ -68,13 +77,30 @@ class CodeEditor:
     def new_file(self):
         self.text_widget.delete(1.0, tk.END)
 
+    def open_selected_file(self, event):
+        # Get the selected file from the Listbox
+        selected_file_index = self.file_listbox.curselection()
+        if selected_file_index:
+            selected_file = self.file_listbox.get(selected_file_index)
+            file_path = os.path.join(self.current_folder_path, selected_file)
+
+            # Open the file and load its content into the Text widget
+            with open(file_path, 'r') as file:
+                content = file.read()
+                self.text_widget.delete(1.0, tk.END)
+                self.text_widget.insert(tk.END, content)
+
+            # Update the file_path attribute for save operations
+            self.file_path = file_path  # Update the file_path here
+
+            # Additionally, update the window title to display the current file name
+            self.root.title(f"Simple Code Editor - {selected_file}")
+
     def open_file(self):
         folder_path = filedialog.askdirectory()
         if folder_path:
-            # Do something with the selected folder path
-            print(f"Selected folder: {folder_path}")
-            # You can use the folder path as needed in your application
-            # For example, you might list the files in the folder or perform other operations.
+            # Store the current folder path for later use
+            self.current_folder_path = folder_path
 
             # Clear existing items in the listbox
             self.file_listbox.delete(0, tk.END)
@@ -111,6 +137,15 @@ class CodeEditor:
 
     def custom_destroy(self):
         self.root.destroy()
+
+    def update_line_numbers(self, event=None):
+        # Update line numbers based on the number of lines in the text widget
+        lines = self.text_widget.get(1.0, tk.END).count('\n')
+        line_numbers = '\n'.join(str(i) for i in range(1, lines + 2))
+        self.line_number_widget.config(state=tk.NORMAL)
+        self.line_number_widget.delete(1.0, tk.END)
+        self.line_number_widget.insert(tk.END, line_numbers)
+        self.line_number_widget.config(state=tk.DISABLED)
 
 if __name__ == "__main__":
     root = tk.Tk()
