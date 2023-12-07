@@ -9,6 +9,7 @@ class CodeEditor:
         self.root.title("Simple Code Editor")
         self.current_folder_path = ""
         self.numLines = 0
+        
 
         # Create a Text widget for line numbers
         self.line_number_widget = tk.Text(root, width=4, height=30, borderwidth=0, highlightthickness=0, wrap=tk.NONE)
